@@ -1,0 +1,25 @@
+Usage:
+You can use the structure below to create and add your own xmlrpc methods, or you can use the function below yourself (it's pretty powerful)
+
+
+Some example arrays:
+array( 1, $username, $password, $post_type, $category, $numberposts, $extra );
+
+Get 10 most recently published posts:
+array( 1, $username, $password, 'post', false, 10, false );
+
+Get 10 most recently modified posts
+array( 1, $username, $password, 'post', false, 10, array( 'orderby' => 'modified' ) );
+
+Get 10 most recently modified posts in the sports category ($category can be either a slug or an ID)
+array( 1, $username, $password, 'post', 'sports', 10, array( 'orderby' => 'modified' ) );
+
+Get 10 most recently modified posts or pages
+array( 1, $username, $password, array( 'post', 'page' ), false, 10, array( 'orderby' => 'modified' ) );
+
+Search for posts in the sports category with the term Tom Brady in it
+array( 1, $username, $password, 'post', 'sports', 10, array( 's' => 'Tom Brady' ) );
+
+Basically, it accepts anything get_posts accepts (http://codex.wordpress.org/Function_Reference/query_posts#Parameters)
+
+William P. Davis originally made this for the Bangor Daily News.
