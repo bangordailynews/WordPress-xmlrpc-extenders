@@ -65,6 +65,7 @@ function my_get_posts( $args ) {
 
 		$post_args = array(
 				'numberposts' => $numberposts,
+				'posts_per_page' => $numberposts,
 				$category_call => $category,
 				'post_type' => $post_type,
 				'post_status' => 'any'
@@ -92,26 +93,23 @@ function my_get_posts( $args ) {
 				$post_date_gmt = get_gmt_from_date( mysql2date( 'Y-m-d H:i:s', $entry->post_date ), 'Ymd\TH:i:s' );
 
 			$categories = array();
-			$catids = wp_get_post_categories( $entry->ID );
-			foreach( $catids as $catid )
-				$categories[] = get_cat_name( $catid );
-
-			$tagnames = array();
-			$tags = wp_get_post_tags( $entry->ID );
-			if ( !empty( $tags ) ) {
-				foreach ( $tags as $tag ) {
-					$tagnames[] = $tag->name;
-				}
-				$tagnames = implode( ', ', $tagnames );
-			} else {
-				$tagnames = '';
-			}
+			$cats = get_the_category( $entry->ID, 'category' );
+			foreach( $cats as $cat )
+				$categories[] = array( 'name' => $cat->cat_name, 'parent' => $cat->category_parent );
+			
+			$publications = array();
+			$pubs = get_the_terms( $entry->ID, 'publication' );
+			foreach( $pubs as $pub )
+				$publications[] = $pub->name;
 
 			$post = get_extended( $entry->post_content );
 			$link = post_permalink( $entry->ID );
 
 			// Get the post author info.
-			$author = get_userdata( $entry->post_author );
+			$authors = (array) get_userdata( $entry->post_author );
+			
+			if( function_exists( 'get_coauthors' ) )
+				$authors = get_coauthors( $entry->ID );
 
 			$allow_comments = ( 'open' == $entry->comment_status ) ? 1 : 0;
 			$allow_pings = ( 'open' == $entry->ping_status ) ? 1 : 0;
@@ -129,19 +127,21 @@ function my_get_posts( $args ) {
 				'title' => $entry->post_title,
 				'link' => $link,
 				'permaLink' => $link,
+				// commented out because no other tool seems to use this
+				// 'content' => $entry['post_content'],
 				'categories' => $categories,
 				'mt_excerpt' => $entry->post_excerpt,
 				'mt_text_more' => $post['extended'],
 				'mt_allow_comments' => $allow_comments,
 				'mt_allow_pings' => $allow_pings,
-				'mt_keywords' => $tagnames,
 				'wp_slug' => $entry->post_name,
 				'wp_password' => $entry->post_password,
 				'wp_author_id' => $author->ID,
-				'wp_author_display_name' => $author->display_name,
+				'wp_authors' => $authors,
 				'date_created_gmt' => new IXR_Date($post_date_gmt),
 				'post_status' => $entry->post_status,
-				'custom_fields' => $wp_xmlrpc_server->get_custom_fields($entry->ID)
+				'custom_fields' => $wp_xmlrpc_server->get_custom_fields($entry->ID),
+				'publications' => $publications,
 			);
 
 		}
