@@ -35,11 +35,11 @@ Basically, it accepts anything get_posts accepts (http://codex.wordpress.org/Fun
 add_filter( 'xmlrpc_methods', 'add_my_xmlrpc_methods' );
 
 function add_my_xmlrpc_methods( $methods ) {
-    $methods['my.getPosts'] = 'my_get_posts';
+    $methods['bdn.getPosts'] = 'bdn_xmlrpc_get_posts';
     return $methods;
 }
 
-function my_get_posts( $args ) {
+function bdn_xmlrpc_get_posts( $args ) {
 		global $wp_xmlrpc_server;
 		$wp_xmlrpc_server->escape( $args );
 
